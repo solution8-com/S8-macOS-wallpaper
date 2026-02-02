@@ -5,6 +5,25 @@ import * as THREE from 'three';
 // Disable pointer events so desktop icons remain clickable
 document.body.style.pointerEvents = "none";
 
+// FPS counter overlay (hidden to pointer events, matches legacy look)
+const fpsCounter = document.createElement('div');
+fpsCounter.className = 'fps-counter';
+const fpsLabel = document.createElement('span');
+fpsLabel.className = 'fps-label';
+fpsLabel.textContent = 'FPS';
+const fpsValue = document.createElement('span');
+fpsValue.className = 'fps-value';
+fpsCounter.appendChild(fpsLabel);
+fpsCounter.appendChild(fpsValue);
+document.body.appendChild(fpsCounter);
+
+function updateFpsDisplay(value) {
+  const rounded = Math.max(1, Math.min(999, Math.round(value)));
+  fpsValue.textContent = rounded.toString();
+}
+
+updateFpsDisplay(0);
+
 // Scene setup
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -280,8 +299,26 @@ window.addEventListener('resize', () => {
 
 // Animation loop
 let time = 0;
+const FPS_SAMPLE_INTERVAL = 0.5;
+let fpsFrameAccumulator = 0;
+let fpsSampleTime = 0;
+let lastFrameTimestamp = performance.now();
 function animate() {
   requestAnimationFrame(animate);
+
+  const now = performance.now();
+  const deltaSeconds = (now - lastFrameTimestamp) / 1000;
+  lastFrameTimestamp = now;
+
+  fpsFrameAccumulator += 1;
+  fpsSampleTime += deltaSeconds;
+
+  if (fpsSampleTime >= FPS_SAMPLE_INTERVAL) {
+    const measuredFps = fpsFrameAccumulator / fpsSampleTime;
+    updateFpsDisplay(measuredFps);
+    fpsFrameAccumulator = 0;
+    fpsSampleTime = 0;
+  }
 
   // Update time uniform
   // LERP smoothing for speed

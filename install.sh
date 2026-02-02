@@ -1,11 +1,34 @@
 #!/bin/bash
 
 # Define Paths
-WORK_DIR=$(pwd)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORK_DIR="$SCRIPT_DIR"
 MONITOR_SRC="monitor.swift"
 MONITOR_BIN="monitor"
 PLIST_MONITOR="$HOME/Library/LaunchAgents/com.thedawgctor.plash.monitor.plist"
 PLIST_SERVER="$HOME/Library/LaunchAgents/com.thedawgctor.plash.server.plist"
+
+# Ensure deterministic location
+cd "$WORK_DIR" || { echo "Unable to switch to repo root ($WORK_DIR)."; exit 1; }
+
+# Guard against accidental re-runs
+if [ -f "$WORK_DIR/$MONITOR_BIN" ]; then
+    echo "Existing monitor binary detected at $WORK_DIR/$MONITOR_BIN."
+    echo "Remove it manually before reinstalling to avoid overwriting."
+    exit 1
+fi
+
+if [ -f "$PLIST_MONITOR" ]; then
+    echo "LaunchAgent plist already exists: $PLIST_MONITOR"
+    echo "Remove or move it before re-running this installer to keep the setup deterministic."
+    exit 1
+fi
+
+if [ -f "$PLIST_SERVER" ]; then
+    echo "LaunchAgent plist already exists: $PLIST_SERVER"
+    echo "Remove or move it before re-running this installer to keep the setup deterministic."
+    exit 1
+fi
 
 echo "----------------------------------------"
 echo "  Plash Wallpaper - System Monitor Setup"

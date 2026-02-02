@@ -66,4 +66,14 @@ We have streamlined the setup into a single "one-click" installer.
 -   **Persistence**: `launchd` agents keep both the web server and the monitor running in the background.
 
 ---
+## FPS Counter Overlay
+
+If you are merging changes from the prior feature branch or reintroducing the FPS overlay manually, follow the same three parts that ship in this repo:
+
+1. **CSS** – copy the `.fps-counter`, `.fps-label`, and `.fps-value` rules into your `index.html` (or equivalent stylesheet). The overlay sits fixed in the bottom-right corner, uses a translucent capsule background, and has `pointer-events: none` so it never blocks desktop interactions.
+2. **DOM + helper** – create the container and two spans inside `animation.js` (or your module entrypoint), append them to `document.body`, and call `updateFpsDisplay(0)` once so the counter shows zero before the loop runs.
+3. **Loop logic** – inside `animate()` compute the delta from `performance.now()`, accumulate frames over a 0.5 s window, clamp and round the computed FPS to the [1, 999] range, and call `updateFpsDisplay` right before the render step. This preserves the legacy telemetry math and keeps the overlay tightly coupled with the animation loop.
+
+Including all three parts ensures the overlay looks, behaves, and reports the same metrics as before the feature branch broke. The latest styling reinterprets the capsule as a green CRT/Nixie-style counter (scanlines, glow, and radial tint) so it matches the desired retro console aesthetic.
+
 *Property of AI Raadgivning ApS*
