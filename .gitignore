@@ -1,5 +1,4 @@
-# Ignore the original saved HTML page and assets
-AI Builders Unconference_*.html
-AI Builders Unconference_*_files/
 .DS_Store
 monitor
+speed.json
+speed.json
